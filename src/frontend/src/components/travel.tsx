@@ -10,6 +10,7 @@ export interface ITravel {
     history: string;
     walking: string;
     attractions: string[];
+    theaters: string[];
     restaurants: string[];
     food: string[];
     bars: string[];
@@ -31,15 +32,16 @@ Currency: Write a paragraph the local currency.
 Transportation: Write a long paragraph about what is the best way to get from the airport to downtown.
 History: Write a detailed paragraph about the city's history.
 Attractions: List the major attractions.
+Theaters: List some major theaters.
 Walking: Write a very long paragraph about a four hour walking tour.
 Restaurants: List some top restaurants and some dives?
-Food: List some famous dishes and desserts?
+Food: List some famous dishes and desserts.
 Bars: List some famous bars.
 Pubs: List some famous pubs.
 Drinks: List some famous drinks.
 Parks: List some parks in the city.
-Beaches: List some beaches in the city.
-Activities: Write about some fun activities.
+Beaches: If there are beaches in the city, list some of the beaches.
+Activities: Write a long paragraph about some fun activities.
 Trips: Write a long paragraph about some day trips.
 Safety: Write a long about safety concerns.
 Hospitals: List some hospitals.
@@ -54,6 +56,7 @@ Output format:
 "history":"",
 "walking":"",
 "attractions":[""],
+"theaters":[""],
 "restaurants":[""],
 "food":[""],
 "bars":[""],
@@ -79,8 +82,10 @@ const config = {
 const Travel = () => {
     let [input, setInput] = createSignal("London, UK");
     let [completion, setCompletion] = createSignal<ITravel>();
+    let [processing, setProcessing] = createSignal(false);
 
     const process = async () => {
+        setProcessing(true)
         const payload = {
             messages: [{
                 role: "user",
@@ -89,6 +94,7 @@ const Travel = () => {
             max_tokens: 1000,
             temperature: 0.3
         }
+        setInput("Processing ...")
         try {
             console.info(import.meta.env.VITE_URI)
             const resp = await axios.post(import.meta.env.VITE_URI, payload, config)
@@ -98,6 +104,8 @@ const Travel = () => {
                 console.info(json)
             }
         } finally {
+            setInput("")
+            setProcessing(false)
         }
     }
 
@@ -157,6 +165,16 @@ const Travel = () => {
                             </div>
                         </div>
                         <div class="basis-1/4 p-2">
+                            {completion()?.theaters.length && <>
+                                <label class='font-bold text-lg'>Theaters</label>
+                                <div>
+                                    <For each={completion()?.theaters}>
+                                        {(th) => <p>- {th}</p>}
+                                    </For>
+                                </div>
+                            </>}
+                        </div>
+                        <div class="basis-1/4 p-2">
                             {completion()?.beaches.length && <>
                                 <label class='font-bold text-lg'>Beaches</label>
                                 <div>
@@ -185,10 +203,13 @@ const Travel = () => {
                             </div>
                         </div>
                         <div class="basis-1/4 p-2">
-                            <label class='font-bold text-lg'>Bars</label>
+                            <label class='font-bold text-lg'>Bars & Pubs</label>
                             <div>
                                 <For each={completion()?.bars}>
                                     {(bar) => <p>- {bar}</p>}
+                                </For>
+                                <For each={completion()?.pubs}>
+                                    {(pub) => <p>- {pub}</p>}
                                 </For>
                             </div>
                         </div>

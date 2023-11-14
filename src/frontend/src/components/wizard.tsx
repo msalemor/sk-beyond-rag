@@ -1,4 +1,7 @@
-const Wizard = () => <div class=''>
+const Wizard = () => <div class='container mx-auto'>
+    <div>
+        <label>Recommendation</label>
+    </div>
     <div class="flex flex-row">
         <div class="basis-1/2 p-2">
 
