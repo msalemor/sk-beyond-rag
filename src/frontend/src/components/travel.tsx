@@ -1,5 +1,5 @@
-import axios from "axios";
 import { For, createSignal } from "solid-js";
+import { AzureGpt } from "../services";
 
 export interface ITravel {
     city: string;
@@ -72,19 +72,13 @@ Output format:
 
 Output in JSON format.`
 
-const config = {
-    headers: {
-        'api-key': import.meta.env.VITE_API_KEY,
-        'Content-Type': 'application/json'
-    }
-}
-
 const Travel = () => {
     let [input, setInput] = createSignal("London, UK");
     let [completion, setCompletion] = createSignal<ITravel>();
     let [processing, setProcessing] = createSignal(false);
 
     const process = async () => {
+        if (processing()) return
         setProcessing(true)
         const payload = {
             messages: [{
@@ -97,8 +91,8 @@ const Travel = () => {
         setInput("Processing ...")
         try {
             console.info(import.meta.env.VITE_URI)
-            const resp = await axios.post(import.meta.env.VITE_URI, payload, config)
-            const json: ITravel = JSON.parse(resp.data.choices[0].message.content)
+            const resp = await AzureGpt(payload)
+            const json: ITravel = JSON.parse(resp.choices[0].message.content)
             if (json) {
                 setCompletion(json)
                 console.info(json)
